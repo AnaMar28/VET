@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Interactiva Medicina Veterinaria</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 20px; }
+    h2 { color: #2b5d3f; }
+    .semestre { background: #e6f2ed; border-left: 5px solid #2b5d3f; padding: 15px; margin: 10px 0; }
+    .materia { margin: 8px 0; }
+    .materia input[type="checkbox"] { margin-right: 10px; }
+    .bloqueada { color: #999; }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Medicina Veterinaria</h1>
+
+  <div id="contenedor"></div>
+
+  <script>
+    const materias = {
+      '1.1': { nombre: 'Biofísica y bioestadística aplicada a la veterinaria' },
+      '1.2': { nombre: 'Química, bioquímica y biología celular' },
+      '1.3': { nombre: 'Zoología y botánica aplicada a la veterinaria' },
+      '1.4': { nombre: 'Anatomía y Embriología I' },
+      '1.5': { nombre: 'Bienestar animal, etnología y etología' },
+      '1.6': { nombre: 'Expresión oral y escrita' },
+      '1.7': { nombre: 'Filosofía institucional uniagrarista' },
+
+      '2.1': { nombre: 'Bioquímica y biología molecular', prereq: ['1.2'] },
+      '2.2': { nombre: 'Genética' },
+      '2.3': { nombre: 'Histología veterinaria', prereq: ['1.4'] },
+      '2.4': { nombre: 'Anatomía y embriología II', prereq: ['1.4'] },
+      '2.5': { nombre: 'TGS' },
+      '2.6': { nombre: 'Fisiología veterinaria I' },
+      '2.7': { nombre: 'Metodología de la investigación' },
+
+      '3.1': { nombre: 'Fisiología veterinaria II', prereq: ['2.6'] },
+      '3.2': { nombre: 'Bacteriología y micología' },
+      '3.3': { nombre: 'Mejoramiento genético', prereq: ['2.2'] },
+      '3.4': { nombre: 'Inmunología' },
+      '3.5': { nombre: 'Parasitología' },
+      '3.6': { nombre: 'Electiva interdisciplinar I “formación integral”' },
+      '3.7': { nombre: 'Electiva socio humanística I “ecoturismo”' },
+
+      '4.1': { nombre: 'Virología y priones' },
+      '4.2': { nombre: 'Microbiología alimentaria', prereq: ['3.2'] },
+      '4.3': { nombre: 'TECA' },
+      '4.4': { nombre: 'Nutrición animal monogástricos' },
+      '4.5': { nombre: 'SPP', prereq: ['2.5'] },
+      '4.6': { nombre: 'Gestión ambiental' },
+      '4.7': { nombre: 'Electiva sociohumanística II “historia de la cultura”' },
+
+      '5.1': { nombre: 'Patología general', prereq: ['2.3', '2.4', '3.1'] },
+      '5.2': { nombre: 'Propedéutica clínica', prereq: ['2.4', '3.1'] },
+      '5.3': { nombre: 'Fisiología y biotecnología de reproducción', prereq: ['2.4', '3.1'] },
+      '5.4': { nombre: 'Nutrición animal poligástricos' },
+      '5.5': { nombre: 'SPA', prereq: ['4.5'] },
+      '5.6': { nombre: 'Electiva interdisciplinar II' },
+      '5.7': { nombre: 'Desarrollo rural' },
+
+      '6.1': { nombre: 'Patología sistémica', prereq: ['5.1'] },
+      '6.2': { nombre: 'Enfermedades parasitarias', prereq: ['3.5', '5.1'] },
+      '6.3': { nombre: 'Farmacología y farmacia' },
+      '6.4': { nombre: 'Reproducción y obstetricia', prereq: ['5.3'] },
+      '6.5': { nombre: 'Electiva profundización I' },
+      '6.6': { nombre: 'Electiva interdisciplinaria II' },
+      '6.7': { nombre: 'Constitución política de Colombia' },
+
+      '7.1': { nombre: 'Patología correlación', prereq: ['6.1'] },
+      '7.2': { nombre: 'Radiología', prereq: ['6.1'] },
+      '7.3': { nombre: 'Medicina y producción aviar', prereq: ['6.1'] },
+      '7.4': { nombre: 'Higiene y seguridad alimentaria I', prereq: ['4.2'] },
+      '7.5': { nombre: 'Electiva profundización II' },
+      '7.6': { nombre: 'Electiva profundización III' },
+      '7.7': { nombre: 'Emprendimiento e innovación' },
+
+      '8.1': { nombre: 'Farmacología clínica', prereq: ['6.3'] },
+      '8.2': { nombre: 'Higiene y seguridad alimentaria II', prereq: ['7.4'] },
+      '8.3': { nombre: 'Cirugía general y anestesia', prereq: ['7.1'] },
+      '8.4': { nombre: 'Patología médica I', prereq: ['7.1'] },
+      '8.5': { nombre: 'Epidemiología' },
+      '8.6': { nombre: 'Medicina preventiva', prereq: ['7.1'] },
+      '8.7': { nombre: 'Toxicología', prereq: ['6.3'] },
+
+      '9.1': { nombre: 'Patología médica', prereq: ['8.4'] },
+      '9.2': { nombre: 'Cirugía especial', prereq: ['8.3'] },
+      '9.3': { nombre: 'Salud pública veterinaria', prereq: ['8.6'] },
+      '9.4': { nombre: 'Medicina legal y legislación' },
+      '9.5': { nombre: 'SGC', prereq: ['8.2'] },
+      '9.6': { nombre: 'Deontología' },
+      '9.7': { nombre: 'Electiva de profundización IV' },
+
+      '10.1': { nombre: 'Práctica externa clínica' },
+      '10.2': { nombre: 'Práctica externa producción animal' },
+      '10.3': { nombre: 'Práctica externa salud pública e inspección alimentaria' },
+      '10.4': { nombre: 'Proyecto de grado' },
+    };
+
+    const contenedor = document.getElementById('contenedor');
+
+    function crearSemestre(num) {
+      const div = document.createElement('div');
+      div.className = 'semestre';
+      div.innerHTML = `<h2>Semestre ${num}</h2>`;
+      for (const clave in materias) {
+        if (clave.startsWith(num + '.')) {
+          const mat = materias[clave];
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = clave;
+          checkbox.onchange = verificarBloqueos;
+
+          const label = document.createElement('label');
+          label.htmlFor = clave;
+          label.innerText = `${clave} ${mat.nombre}`;
+          label.className = mat.prereq ? 'bloqueada' : '';
+
+          const item = document.createElement('div');
+          item.className = 'materia';
+          item.appendChild(checkbox);
+          item.appendChild(label);
+
+          div.appendChild(item);
+        }
+      }
+      contenedor.appendChild(div);
+    }
+
+    function verificarBloqueos() {
+      for (const clave in materias) {
+        const mat = materias[clave];
+        const checkbox = document.getElementById(clave);
+        if (mat.prereq) {
+          const habilitada = mat.prereq.every(pr => document.getElementById(pr)?.checked);
+          checkbox.disabled = !habilitada;
+          checkbox.nextSibling.className = habilitada ? '' : 'bloqueada';
+        }
+      }
+    }
+
+    for (let i = 1; i <= 10; i++) crearSemestre(i);
+    verificarBloqueos();
+  </script>
+</body>
+</html>
